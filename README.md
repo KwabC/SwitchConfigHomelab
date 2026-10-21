@@ -1,10 +1,11 @@
 # Basic Switch Configuration
 
+A hands-on Packet Tracer lab for configuring a Cisco 2960 switch from a fresh default state. This guide walks through the essential setup tasks required to secure a switch, assign management addressing, and enable SSH remote access.
 
 ## Table of Contents
 
 1. [Overview](#1-overview)
-2. [Devices/Hardware](#2-Devices/Hardware)
+2. [Lab Requirements](#2-lab-requirements)
 3. [Lab Reference](#3-lab-reference)
 4. [Procedure](#4-procedure)
    - [4.1 Build the topology and connect to the console](#41-build-the-topology-and-connect-to-the-console)
@@ -20,34 +21,39 @@
 
 ## 1. Overview
 
-This Packet Tracer Lab simulates a console connection to a switch and walks through its initial configuration: hostname, passwords, login banner, management IP address, default gateway, and secure remote access over SSH.
+This lab simulates a console session to a Cisco switch and walks through the initial configuration needed to bring the device into a usable and secure state. By the end of the exercise, you will have configured a hostname, secure passwords, a login banner, a management IP address, a default gateway, and SSH access.
 
 ### Objectives
 
-- Simulate a console connection to a switch using Packet Tracer.
-- Understand and configure basic switch settings.
-- Configure hostname, IP addresses, MOTD and passwords.
-- Use `show` commands to verify switch configurations.
+- Connect to a switch using the console port in Packet Tracer.
+- Inspect the default switch configuration.
+- Configure the hostname, passwords, and banner.
+- Assign an IP address to VLAN 1 for management.
+- Enable SSH for remote administration.
+- Verify that the switch is correctly configured.
 
 ---
 
-## 2. Devices/Hardware
+## 2. Lab Requirements
 
-| Requirement | Detail |
-|-------------|--------|
-| Devices | 1 × Cisco 2960 switch, 1 × PC |
-| Cabling | 1 × console cable/ 1 x straight through cable |
-| Knowledge | Basic navigation of the Cisco CLI (see [CLI modes](#cli-modes-used-in-this-lab)) |
+| Requirement | Details |
+|-------------|---------|
+| Devices | 1 x Cisco 2960 switch, 1 x PC |
+| Cabling | 1 x console cable, 1 x straight-through Ethernet cable |
+| Software | Cisco Packet Tracer |
+| Knowledge | Basic familiarity with Cisco CLI navigation |
 
 ### CLI modes used in this lab
 
 | Mode | Prompt | How to enter |
 |------|--------|--------------|
-| User EXEC | `Switch>` | Default on login (limited access) |
+| User EXEC | `Switch>` | Default login state |
 | Privileged EXEC | `Switch#` | `enable` |
 | Global configuration | `Switch(config)#` | `configure terminal` |
 | Interface configuration | `Switch(config-if)#` | `interface <name>` |
 | Line configuration | `Switch(config-line)#` | `line <type> <number>` |
+
+> Note: The switch starts in User EXEC mode. This mode is limited and does not allow configuration changes until you enter Privileged EXEC mode with `enable`.
 
 ---
 
@@ -55,12 +61,11 @@ This Packet Tracer Lab simulates a console connection to a switch and walks thro
 
 ### Topology
 
-<img width="536" height="362" alt="Switch Configuration" src="https://github.com/user-attachments/assets/26964705-13a1-4621-9b40-76ba5d413cbe" />
-
+<img width="536" height="362" alt="Switch configuration topology" src="https://github.com/user-attachments/assets/26964705-13a1-4621-9b40-76ba5d413cbe" />
 
 ### Addressing
 
-| Device | Interface | IP address | Subnet mask | Default gateway |
+| Device | Interface | IP Address | Subnet Mask | Default Gateway |
 |--------|-----------|------------|-------------|-----------------|
 | Switch01 | VLAN 1 (SVI) | 192.168.1.5 | 255.255.255.0 | 192.168.1.1 |
 
@@ -68,11 +73,9 @@ This Packet Tracer Lab simulates a console connection to a switch and walks thro
 
 | Purpose | Username | Password | Notes |
 |---------|----------|----------|-------|
-| Privileged EXEC | n/a | `class` | `enable secret` (encrypted) |
-| Console line | n/a | `cisco` | Set on `line con 0` |
-| SSH login | `admin` | `cisco` | Local user, privilege 15 |
-
-
+| Privileged EXEC | — | `class` | `enable secret` (encrypted) |
+| Console line | — | `cisco` | Configured on `line con 0` |
+| SSH login | `admin` | `cisco` | Local user with privilege level 15 |
 
 ### Terminal settings
 
@@ -83,56 +86,66 @@ This Packet Tracer Lab simulates a console connection to a switch and walks thro
 | Parity | None |
 | Stop bits | 1 |
 
-
+---
 
 ## 4. Procedure
 
-### Build the topology and connect to the console
+### 4.1 Build the topology and connect to the console
 
-1. **Create the topology.**
-2. **Connect the PC to the switch.**
+Follow these steps to physically connect the devices and access the switch CLI.
+
+1. Create the topology with the Cisco switch and a PC.
+2. Connect the PC to the switch using the console cable.
    1. Select the **Console Cable** from the cable options.
-   2. Click the PC and connect the cable to the **RS-232** port (the console port).
-   3. Click the switch and connect the other end to its **Console** port.
-3. **Open the switch CLI.**
+   2. Click the PC and connect the cable to the **RS-232** port.
+   3. Click the switch and connect the other end to the **Console** port.
+3. Open the switch CLI.
    1. Click the PC and open the **Desktop** tab.
    2. Launch the **Terminal** application.
-   3. Keep the default terminal settings (see [Terminal settings](#terminal-settings)).
+   3. Keep the default terminal settings shown in [Terminal settings](#terminal-settings).
 
-**Expected result:** You have access to the switch's CLI.
+Expected result: You are connected to the switch and can begin entering Cisco IOS commands.
 
-### Inspect the default configuration
+---
 
-Examine the default switch settings: current configuration, IOS information, interface properties, VLAN information, and flash memory.
+### 4.2 Inspect the default configuration
 
-Enter Privileged EXEC mode first. By default the switch starts in User EXEC mode with limited access.
+Before making any changes, review the switch’s current state to understand what the default configuration contains.
 
-```
+Enter Privileged EXEC mode first:
+
+```text
 Switch> enable
 ```
 
 | Step | Purpose | Command |
 |------|---------|---------|
-| 1 | Examine the current running configuration | `Switch# show running-config` |
-| 2 | Examine the startup configuration in NVRAM | `Switch# show startup-config` |
-| 3 | Examine the Cisco IOS version information | `Switch# show version` |
-| 4 | Examine the default VLAN settings | `Switch# show vlan` |
-| 5 | Examine flash memory | `Switch# show flash` |
+| 1 | View the active configuration | `Switch# show running-config` |
+| 2 | View the saved startup configuration | `Switch# show startup-config` |
+| 3 | Review the IOS version and system details | `Switch# show version` |
+| 4 | View VLAN information | `Switch# show vlan` |
+| 5 | Inspect flash memory | `Switch# show flash` |
+
+These commands help confirm the device is in a default state and provide useful context before you change settings.
+
+---
 
 ### 4.3 Configure basic device settings
 
-Configure the hostname, local passwords, and MOTD banner.
+In this section, you will configure the hostname, secure the console, disable DNS lookup, encrypt saved passwords, and add a login banner.
 
 | Step | Task | Command | Notes |
 |------|------|---------|-------|
-| 1 | Set hostname | `Switch(config)# hostname Switch01` | |
-| 2 | Encrypt plaintext passwords | `Switch01(config)# service password-encryption` | |
-| 3 | Set privileged EXEC password | `Switch01(config)# enable secret class` | Stored encrypted; adds a layer of security |
-| 4 | Disable DNS lookups | `Switch01(config)# no ip domain-lookup` | Prevents unwanted DNS lookups on mistyped commands |
+| 1 | Set the hostname | `Switch(config)# hostname Switch01` | Device name becomes `Switch01` |
+| 2 | Encrypt plaintext passwords | `Switch01(config)# service password-encryption` | Protects saved passwords |
+| 3 | Set the privileged EXEC password | `Switch01(config)# enable secret class` | Stores the password in encrypted form |
+| 4 | Disable DNS lookups | `Switch01(config)# no ip domain-lookup` | Prevents slow or unwanted DNS queries |
 
 #### Configure the MOTD banner
 
-```
+The message of the day (MOTD) banner appears when users access the device and helps warn unauthorized users.
+
+```text
 Switch01(config)# banner motd #
 Enter TEXT message.  End with the character '#'.
 Unauthorized access is strictly prohibited. #
@@ -140,9 +153,9 @@ Unauthorized access is strictly prohibited. #
 
 #### Secure the console port
 
-By default, the console allows all connections with no password. Require a password, and use `logging synchronous` so console messages do not interrupt commands you are typing.
+By default, the console line allows access without a password. To secure it, configure a password and enable synchronous logging so console messages do not interrupt your typed commands.
 
-```
+```text
 Switch01(config)# line con 0
 Switch01(config-line)# password cisco
 Switch01(config-line)# login
@@ -150,13 +163,17 @@ Switch01(config-line)# logging synchronous
 Switch01(config-line)# exit
 ```
 
+---
+
 ### 4.4 Configure management addressing
+
+To manage the switch over the network, assign it a management IP address and default gateway.
 
 #### Assign an IP address to VLAN 1
 
-VLAN 1 is the default VLAN on most switches. Assigning it an IP address allows remote management of the switch. `no shutdown` activates the interface.
+VLAN 1 is the default VLAN on most Cisco switches. Assigning it a management IP address allows access from the local network.
 
-```
+```text
 Switch01(config)# interface vlan 1
 Switch01(config-if)# ip address 192.168.1.5 255.255.255.0
 Switch01(config-if)# no shutdown
@@ -164,31 +181,33 @@ Switch01(config-if)# no shutdown
 
 #### Configure the default gateway
 
-The default gateway lets the switch communicate with devices outside its local network, enabling remote management from other subnets.
+The default gateway allows the switch to send traffic outside its local subnet, which is necessary for remote management.
 
-```
+```text
 Switch01(config)# ip default-gateway 192.168.1.1
 ```
 
+---
+
 ### 4.5 Configure SSH remote access
 
-SSH is the more secure option for remote management.
+SSH is the preferred method for remote access because it provides encrypted communication.
 
-**Step 1. Create a local user**
+#### Step 1: Create a local user
 
-```
+```text
 Switch01(config)# username admin privilege 15 secret cisco
 ```
 
-**Step 2. Set a domain name**
+#### Step 2: Set a domain name
 
-```
+```text
 Switch01(config)# ip domain-name rockinprotein.com
 ```
 
-**Step 3. Generate RSA keys**
+#### Step 3: Generate RSA keys
 
-```
+```text
 Switch01(config)# crypto key generate rsa
 The name for the keys will be: Switch01.rockinprotein.com
 Choose the size of the key modulus in the range of 360 to 2048 for your
@@ -199,43 +218,56 @@ How many bits in the modulus [512]: 1024
 % Generating 1024 bit RSA keys, keys will be non-exportable...[OK]
 ```
 
-**Step 4. Enable SSH on the VTY lines**
+#### Step 4: Enable SSH on the VTY lines
 
-```
+```text
 Switch01(config)# ip ssh version 2
 Switch01(config)# line vty 0 15
 Switch01(config-line)# transport input ssh
 Switch01(config-line)# login local
 ```
 
+This configures the switch to accept SSH connections only and authenticate users against the local database.
+
 ---
 
 ## 5. Verification
 
+After completing the configuration, verify that the switch is reachable and that SSH is working correctly.
+
 ### Verify the switch configuration
 
-```
+```text
 Switch# show ip interface brief
 Switch# show run
 ```
 
+Review the output to confirm:
+
+- VLAN 1 has an assigned IP address.
+- The default gateway is configured.
+- The hostname is correct.
+- The console and SSH settings are present.
+
 ### Test SSH access
 
-From the PC's Command Prompt:
+From the PC command prompt:
 
-```
+```text
 PC> ssh -l admin 192.168.1.5
 ```
 
-Enter the password when prompted. A successful login confirms secure remote access to the switch.
+When prompted, enter the password `cisco`.
+
+A successful login confirms that SSH is enabled and operating correctly.
 
 ---
 
 ## 6. Complete Configuration
 
-All commands from this lab in one place, in the order they are applied (from global configuration mode).
+The commands below are the full configuration in the order they are typically applied from Global Configuration mode.
 
-```
+```text
 hostname Switch01
 service password-encryption
 enable secret class
@@ -276,26 +308,30 @@ line vty 0 15
 |---------|------|-------------|
 | `enable` | User EXEC | Enter Privileged EXEC mode |
 | `show running-config` | Privileged EXEC | Display the active configuration |
-| `show startup-config` | Privileged EXEC | Display the configuration stored in NVRAM |
+| `show startup-config` | Privileged EXEC | Display the saved startup configuration |
 | `show version` | Privileged EXEC | Display IOS version information |
 | `show vlan` | Privileged EXEC | Display VLAN settings |
 | `show flash` | Privileged EXEC | Display flash memory contents |
-| `show ip interface brief` | Privileged EXEC | Summarize interface IP status |
+| `show ip interface brief` | Privileged EXEC | Summarize current interface IP status |
 | `hostname <name>` | Global config | Set the device hostname |
-| `service password-encryption` | Global config | Encrypt plaintext passwords in the config |
-| `enable secret <pw>` | Global config | Set the encrypted Privileged EXEC password |
+| `service password-encryption` | Global config | Encrypt plaintext passwords in the saved configuration |
+| `enable secret <pw>` | Global config | Configure the encrypted privileged EXEC password |
 | `no ip domain-lookup` | Global config | Disable DNS lookups |
 | `banner motd #<text>#` | Global config | Set the message of the day banner |
-| `line con 0` | Global config | Enter console line configuration |
-| `logging synchronous` | Line config | Keep console messages from interrupting input |
-| `interface vlan 1` | Global config | Enter VLAN 1 interface configuration |
-| `ip address <ip> <mask>` | Interface config | Assign an IP address |
+| `line con 0` | Global config | Enter the console line configuration |
+| `logging synchronous` | Line config | Prevent console messages from interrupting command input |
+| `interface vlan 1` | Global config | Enter the VLAN 1 interface configuration |
+| `ip address <ip> <mask>` | Interface config | Assign an IP address to the interface |
 | `no shutdown` | Interface config | Activate the interface |
-| `ip default-gateway <ip>` | Global config | Set the default gateway |
+| `ip default-gateway <ip>` | Global config | Configure the default gateway |
 | `username <u> privilege 15 secret <pw>` | Global config | Create a local admin user |
 | `ip domain-name <name>` | Global config | Set the domain name |
 | `crypto key generate rsa` | Global config | Generate RSA keys for SSH |
-| `ip ssh version 2` | Global config | Require SSH version 2 |
-| `line vty 0 15` | Global config | Enter VTY line configuration |
-| `transport input ssh` | Line config | Allow only SSH on the VTY lines |
-| `login local` | Line config | Authenticate against the local user database |
+| `ip ssh version 2` | Global config | Enable SSH version 2 only |
+| `line vty 0 15` | Global config | Enter the VTY line configuration |
+| `transport input ssh` | Line config | Allow only SSH access on VTY lines |
+| `login local` | Line config | Authenticate users against the local database |
+
+---
+
+This lab provides a practical introduction to basic switch hardening and remote management setup. Once complete, the switch will be secured, reachable on the network, and ready for SSH administration.
